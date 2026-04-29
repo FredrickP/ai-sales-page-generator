@@ -5,12 +5,14 @@ use App\Http\Controllers\SalesPageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check()
+        ? redirect()->route('sales-pages.index')
+        : redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    return redirect()->route('sales-pages.index');
+})->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -21,12 +23,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales-pages/create', [SalesPageController::class, 'create'])->name('sales-pages.create');
     Route::post('/sales-pages', [SalesPageController::class, 'store'])->name('sales-pages.store');
     Route::get('/sales-pages/{salesPage}', [SalesPageController::class, 'show'])->name('sales-pages.show');
-    Route::delete('/sales-pages/{salesPage}', [SalesPageController::class, 'destroy'])->name('sales-pages.destroy');
-
-    Route::resource('sales-pages', SalesPageController::class);
     Route::post('/sales-pages/{salesPage}/regenerate', [SalesPageController::class, 'regenerate'])->name('sales-pages.regenerate');
-    Route::get('/sales-pages/{salesPage}/export-html', [SalesPageController::class, 'exportHtml'])
-    ->name('sales-pages.export-html');
+    Route::get('/sales-pages/{salesPage}/export-html', [SalesPageController::class, 'exportHtml'])->name('sales-pages.export-html');
+    Route::delete('/sales-pages/{salesPage}', [SalesPageController::class, 'destroy'])->name('sales-pages.destroy');
 });
 
 require __DIR__.'/auth.php';

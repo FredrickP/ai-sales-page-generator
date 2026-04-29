@@ -1,76 +1,118 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Sales Page History
-            </h2>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="font-semibold text-2xl text-gray-900 leading-tight">
+                    Sales Pages
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Create, preview, and manage your AI-generated sales pages.
+                </p>
+            </div>
 
             <a href="{{ route('sales-pages.create') }}"
-               class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
+               class="inline-flex items-center px-5 py-3 bg-indigo-600 border border-transparent rounded-xl font-semibold text-sm text-white shadow-sm hover:bg-indigo-700 transition">
                 + New Sales Page
             </a>
         </div>
     </x-slot>
 
     <div class="py-10">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
             @if (session('success'))
-                <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+                <div class="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
                     {{ session('success') }}
                 </div>
             @endif
-            @if ($errors->any())
-            <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                <ul class="list-disc list-inside space-y-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
 
-            <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="text-lg font-semibold text-gray-900">Your Generated Sales Pages</h3>
-                    <p class="mt-1 text-sm text-gray-600">
-                        View, preview, and manage all generated pages here.
+            <section class="grid gap-4 md:grid-cols-3">
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500">Total Pages</p>
+                    <h3 class="mt-3 text-3xl font-bold text-gray-900">{{ $totalSalesPages }}</h3>
+                    <p class="mt-2 text-sm text-gray-500">All generated sales pages</p>
+                </div>
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500">Generated This Week</p>
+                    <h3 class="mt-3 text-3xl font-bold text-gray-900">{{ $generatedThisWeek }}</h3>
+                    <p class="mt-2 text-sm text-gray-500">Pages created in the current week</p>
+                </div>
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500">Latest Generated</p>
+                    <h3 class="mt-3 text-lg font-semibold text-gray-900">
+                        {{ $latestSalesPage?->product_name ?? 'No data yet' }}
+                    </h3>
+                    <p class="mt-2 text-sm text-gray-500">
+                        {{ $latestSalesPage ? $latestSalesPage->created_at->format('d M Y, H:i') : 'Create your first sales page' }}
+                    </p>
+                </div>
+            </section>
+
+            <section class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                <div class="border-b border-gray-100 p-6">
+                    <h3 class="text-xl font-bold text-gray-900">Generated Sales Pages</h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                        View, regenerate, export, or delete your saved pages.
                     </p>
                 </div>
 
                 @if ($salesPages->isEmpty())
                     <div class="p-10 text-center">
-                        <div class="text-lg font-semibold text-gray-800 mb-2">No sales pages yet</div>
-                        <p class="text-sm text-gray-500 mb-6">
+                        <h4 class="text-lg font-semibold text-gray-900">No sales pages yet</h4>
+                        <p class="mt-2 text-sm text-gray-500">
                             Start by generating your first sales page.
                         </p>
                         <a href="{{ route('sales-pages.create') }}"
-                           class="inline-flex items-center px-5 py-3 bg-indigo-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                            Create First Sales Page
+                           class="mt-4 inline-flex items-center px-5 py-3 bg-indigo-600 border border-transparent rounded-xl font-semibold text-sm text-white hover:bg-indigo-700 transition">
+                            Create Now
                         </a>
                     </div>
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach ($salesPages as $salesPage)
-                            <div class="p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            @php
+                                $formattedPrice = $salesPage->price
+                                    ? 'Rp' . number_format((int) preg_replace('/[^\d]/', '', $salesPage->price), 0, ',', '.')
+                                    : '-';
+                            @endphp
+
+                            <div class="p-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between hover:bg-gray-50/60 transition">
                                 <div class="min-w-0">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <h4 class="text-lg font-semibold text-gray-900 truncate">
+                                    <div class="flex flex-wrap items-center gap-3">
+                                        <h4 class="text-2xl font-bold text-gray-900">
                                             {{ $salesPage->product_name }}
                                         </h4>
-                                        <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+
+                                        <span class="inline-flex items-center rounded-full bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700">
                                             {{ $salesPage->created_at->format('d M Y H:i') }}
                                         </span>
                                     </div>
 
-                                    <p class="text-sm text-gray-600 line-clamp-2">
+                                    <p class="mt-4 text-base text-gray-600 line-clamp-2">
                                         {{ $salesPage->headline ?? 'No headline generated yet.' }}
                                     </p>
+
+                                    <div class="mt-4 flex flex-wrap gap-2 text-sm text-gray-500">
+                                        <span class="rounded-full bg-gray-100 px-4 py-2">
+                                            Audience: {{ $salesPage->target_audience ?: '-' }}
+                                        </span>
+
+                                        <span class="rounded-full bg-gray-100 px-4 py-2">
+                                            Price: {{ $formattedPrice }}
+                                        </span>
+                                    </div>
                                 </div>
 
-                                <div class="flex items-center gap-3 shrink-0">
+                                <div class="flex flex-wrap items-center gap-3 shrink-0">
                                     <a href="{{ route('sales-pages.show', $salesPage) }}"
-                                       class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">
+                                       class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-300 rounded-xl font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">
                                         View
+                                    </a>
+
+                                    <a href="{{ route('sales-pages.export-html', $salesPage) }}"
+                                       class="inline-flex items-center px-4 py-2.5 bg-emerald-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700">
+                                        Export HTML
                                     </a>
 
                                     <form action="{{ route('sales-pages.destroy', $salesPage) }}" method="POST"
@@ -79,7 +121,7 @@
                                         @method('DELETE')
 
                                         <button type="submit"
-                                                class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700">
+                                                class="inline-flex items-center px-4 py-2.5 bg-red-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700">
                                             Delete
                                         </button>
                                     </form>
@@ -88,7 +130,7 @@
                         @endforeach
                     </div>
                 @endif
-            </div>
+            </section>
         </div>
     </div>
 </x-app-layout>

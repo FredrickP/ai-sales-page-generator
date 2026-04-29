@@ -11,12 +11,18 @@ class SalesPageAiService
     {
         $prompt = $this->buildPrompt($data);
 
-        $response = Http::timeout(120)->post(
+        $response = Http::timeout(60)->post(
             rtrim(config('services.ollama.base_url'), '/') . '/api/generate',
             [
                 'model' => config('services.ollama.model'),
                 'prompt' => $prompt,
                 'stream' => false,
+                'format' => 'json',
+                'keep_alive' => '30m',
+                'options' => [
+                    'temperature' => 0.4,
+                    'num_predict' => 300,
+                ],
             ]
         );
 

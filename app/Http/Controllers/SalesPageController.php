@@ -20,8 +20,21 @@ class SalesPageController extends Controller
         $salesPages = SalesPage::where('user_id', Auth::id())
             ->latest()
             ->get();
-
-        return view('sales-pages.index', compact('salesPages'));
+    
+        $totalSalesPages = $salesPages->count();
+    
+        $generatedThisWeek = $salesPages->filter(function ($salesPage) {
+            return $salesPage->created_at->greaterThanOrEqualTo(now()->startOfWeek());
+        })->count();
+    
+        $latestSalesPage = $salesPages->first();
+    
+        return view('sales-pages.index', compact(
+            'salesPages',
+            'totalSalesPages',
+            'generatedThisWeek',
+            'latestSalesPage'
+        ));
     }
 
     public function create()
@@ -113,18 +126,6 @@ class SalesPageController extends Controller
             ->with('success', 'Sales page regenerated successfully.');
     }
 
-    public function destroy(SalesPage $salesPage)
-    {
-        abort_if($salesPage->user_id !== Auth::id(), 403);
-
-        $salesPage->delete();
-
-        return redirect()
-            ->route('sales-pages.index')
-            ->with('success', 'Sales page deleted successfully.');
-    }
-
-
     public function exportHtml(SalesPage $salesPage)
     {
         abort_if($salesPage->user_id !== Auth::id(), 403);
@@ -139,5 +140,16 @@ class SalesPageController extends Controller
             'Content-Type' => 'text/html; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ]);
+    }
+
+    public function destroy(SalesPage $salesPage)
+    {
+        abort_if($salesPage->user_id !== Auth::id(), 403);
+
+        $salesPage->delete();
+
+        return redirect()
+            ->route('sales-pages.index')
+            ->with('success', 'Sales page deleted successfully.');
     }
 }
