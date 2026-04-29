@@ -1,19 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Sales Page Preview
             </h2>
 
-            <div class="flex items-center gap-3">
+            <div class="grid grid-cols-2 gap-3 sm:flex sm:items-center">
                 <a href="{{ route('sales-pages.index') }}"
-                    class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">
-                    Sales Overview
+                    class="inline-flex w-full items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-widest text-gray-700 hover:bg-gray-50 sm:w-auto sm:rounded-md sm:px-4 sm:py-2">
+                    <span class="sm:hidden">Overview</span>
+                    <span class="hidden sm:inline">Sales Overview</span>
                 </a>
 
                 <a href="{{ route('sales-pages.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                    Create New
+                    class="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-white hover:bg-indigo-700 sm:w-auto sm:rounded-md sm:px-4 sm:py-2">
+                    <span class="sm:hidden">Create</span>
+                    <span class="hidden sm:inline">Create New</span>
                 </a>
             </div>
         </div>
@@ -48,7 +50,7 @@
         }
     @endphp
 
-    <div class="py-10">
+<div class="pt-10 pb-24">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-8">
             @if (session('success'))
                 <div class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
@@ -75,27 +77,34 @@
                         </p>
                     </div>
 
-                    <div class="flex items-center gap-3">
-                        <form action="{{ route('sales-pages.regenerate', $salesPage) }}" method="POST">
+                    <div class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
+                        <form action="{{ route('sales-pages.regenerate', $salesPage) }}" method="POST" class="w-full sm:w-auto">
                             @csrf
                             <button type="submit"
-                                class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                                Regenerate
+                                class="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-sm transition hover:bg-indigo-700 sm:w-auto sm:rounded-md sm:px-4 sm:py-2.5">
+                                <span class="sm:hidden">Regen</span>
+                                <span class="hidden sm:inline">Regenerate</span>
                             </button>
                         </form>
 
                         <a href="{{ route('sales-pages.export-html', $salesPage) }}"
-                            class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700">
-                            Export HTML
+                            class="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto sm:rounded-md sm:px-4 sm:py-2.5">
+                            <span class="sm:hidden">Export</span>
+                            <span class="hidden sm:inline">Export HTML</span>
+                        </a>
+
+                        <a href="{{ route('sales-pages.edit', $salesPage) }}"
+                            class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-widest text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 sm:w-auto sm:rounded-md sm:px-4 sm:py-2.5">
+                            Edit
                         </a>
 
                         <form action="{{ route('sales-pages.destroy', $salesPage) }}" method="POST"
-                            onsubmit="return confirm('Delete this sales page?')">
+                            onsubmit="return confirm('Delete this sales page?')" class="w-full sm:w-auto">
                             @csrf
                             @method('DELETE')
 
                             <button type="submit"
-                                class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700">
+                                class="inline-flex w-full items-center justify-center rounded-xl bg-red-600 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-sm transition hover:bg-red-700 sm:w-auto sm:rounded-md sm:px-4 sm:py-2.5">
                                 Delete
                             </button>
                         </form>
@@ -116,12 +125,12 @@
 
                         @if ($formattedPrice)
                             <div class="mt-8">
-                                <span
-                                    class="inline-flex items-center rounded-full bg-white/15 px-4 py-2 text-sm font-medium">
+                                <span class="inline-flex items-center rounded-full bg-white/15 px-4 py-2 text-sm font-medium">
                                     {{ $formattedPrice }}
                                 </span>
                             </div>
                         @endif
+
                         <div class="mt-8 flex flex-wrap gap-3">
                             <button
                                 class="inline-flex items-center px-6 py-3 bg-white text-indigo-700 rounded-lg font-bold text-sm uppercase tracking-widest">
@@ -191,8 +200,7 @@
                             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                                 <div class="mb-5 flex items-center gap-3">
                                     <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
-                                        <svg class="h-5 w-5 text-slate-700" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                        <svg class="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                                 d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
                                         </svg>
@@ -226,6 +234,7 @@
                                             {{ $formattedPrice ?: '-' }}
                                         </p>
                                     </div>
+
                                     <div class="border-b border-slate-100 pb-4">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                             Unique Selling Points

@@ -26,6 +26,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/sales-pages/{salesPage}/regenerate', [SalesPageController::class, 'regenerate'])->name('sales-pages.regenerate');
     Route::get('/sales-pages/{salesPage}/export-html', [SalesPageController::class, 'exportHtml'])->name('sales-pages.export-html');
     Route::delete('/sales-pages/{salesPage}', [SalesPageController::class, 'destroy'])->name('sales-pages.destroy');
+
+    Route::get('/sales-pages/{salesPage}/edit', [SalesPageController::class, 'edit'])->name('sales-pages.edit');
+    Route::put('/sales-pages/{salesPage}', [SalesPageController::class, 'update'])->name('sales-pages.update');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

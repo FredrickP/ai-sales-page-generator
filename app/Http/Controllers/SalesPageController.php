@@ -20,15 +20,15 @@ class SalesPageController extends Controller
         $salesPages = SalesPage::where('user_id', Auth::id())
             ->latest()
             ->get();
-    
+
         $totalSalesPages = $salesPages->count();
-    
+
         $generatedThisWeek = $salesPages->filter(function ($salesPage) {
             return $salesPage->created_at->greaterThanOrEqualTo(now()->startOfWeek());
         })->count();
-    
+
         $latestSalesPage = $salesPages->first();
-    
+
         return view('sales-pages.index', compact(
             'salesPages',
             'totalSalesPages',
@@ -151,5 +151,56 @@ class SalesPageController extends Controller
         return redirect()
             ->route('sales-pages.index')
             ->with('success', 'Sales page deleted successfully.');
+    }
+
+    public function edit(SalesPage $salesPage)
+    {
+        abort_if($salesPage->user_id !== Auth::id(), 403);
+
+        return view('sales-pages.edit', compact('salesPage'));
+    }
+
+    public function update(Request $request, SalesPage $salesPage)
+    {
+        abort_if($salesPage->user_id !== Auth::id(), 403);
+
+        $validated = $request->validate([
+            'product_name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'key_features' => ['nullable', 'string'],
+            'target_audience' => ['nullable', 'string', 'max:255'],
+            'price' => ['nullable', 'string', 'max:255'],
+            'unique_selling_points' => ['nullable', 'string'],
+        ]);
+
+        try {
+            $generated = $this->salesPageAiService->generate($validated);
+        } catch (\Throwable $e) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'ai_error' => 'Failed to re-generate sales page. Please make sure Ollama is running.',
+                ]);
+        }
+
+        $salesPage->update([
+            'product_name' => $validated['product_name'],
+            'description' => $validated['description'] ?? null,
+            'key_features' => $validated['key_features'] ?? null,
+            'target_audience' => $validated['target_audience'] ?? null,
+            'price' => $validated['price'] ?? null,
+            'unique_selling_points' => $validated['unique_selling_points'] ?? null,
+            'headline' => $generated['headline'],
+            'subheadline' => $generated['subheadline'],
+            'benefits' => $generated['benefits'],
+            'features_breakdown' => $generated['features_breakdown'],
+            'social_proof' => $generated['social_proof'],
+            'cta' => $generated['cta'],
+            'full_output' => $generated['full_output'],
+        ]);
+
+        return redirect()
+            ->route('sales-pages.show', $salesPage)
+            ->with('success', 'Sales page updated and re-generated successfully.');
     }
 }
