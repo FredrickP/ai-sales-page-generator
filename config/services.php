@@ -35,8 +35,12 @@ return [
         ],
     ],
 
-    'ollama' => [
-        'base_url' => env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434'),
-        'model' => env('OLLAMA_MODEL', 'llama3.2'),
-    ],
+    // 'ollama' => [
+    //     'base_url' => env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434'),
+    //     'model' => env('OLLAMA_MODEL', 'llama3.2'),
+    // ],
+    'hugging_face' => [
+    'base_url' => env('HUGGING_FACE_BASE_URL', 'https://api-inference.huggingface.co/models'),
+    'model' => env('HUGGING_FACE_MODEL', 'gpt2'),
+],
 ];

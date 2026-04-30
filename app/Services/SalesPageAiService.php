@@ -12,26 +12,18 @@ class SalesPageAiService
         $prompt = $this->buildPrompt($data);
 
         $response = Http::timeout(60)->post(
-            rtrim(config('services.ollama.base_url'), '/') . '/api/generate',
+            rtrim(config('services.hugging_face.base_url'), '/') . '/' . config('services.hugging_face.model'),
             [
-                'model' => config('services.ollama.model'),
-                'prompt' => $prompt,
-                'stream' => false,
-                'format' => 'json',
-                'keep_alive' => '30m',
-                'options' => [
-                    'temperature' => 0.4,
-                    'num_predict' => 300,
-                ],
+                'inputs' => $prompt,
             ]
         );
 
         if (! $response->successful()) {
-            throw new RuntimeException('Failed to connect to Ollama.');
+            throw new RuntimeException('Failed to connect to Hugging Face.');
         }
 
         $result = $response->json();
-        $rawText = $result['response'] ?? null;
+        $rawText = $result['generated_text'] ?? null;  // Hugging Face biasanya mengembalikan teks dengan key 'generated_text'
 
         if (! $rawText) {
             throw new RuntimeException('Empty AI response.');
