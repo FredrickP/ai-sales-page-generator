@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class SalesPageAiService
@@ -11,28 +12,45 @@ class SalesPageAiService
     {
         $prompt = $this->buildPrompt($data);
 
-        $response = Http::timeout(60)->post(
-            rtrim(config('services.hugging_face.base_url'), '/') . '/' . config('services.hugging_face.model'),
-            [
-                'inputs' => $prompt,
-            ]
-        );
+        $url = rtrim(config('services.ollama.base_url'), '/') . '/api/generate';
+
+        Log::info('Ollama API Request', [
+            'url' => $url,
+            'model' => config('services.ollama.model'),
+        ]);
+
+        $response = Http::timeout(120)->post($url, [
+            'model' => config('services.ollama.model'),
+            'prompt' => $prompt,
+            'stream' => false,
+        ]);
+
+        Log::info('Ollama API Response', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
 
         if (! $response->successful()) {
-            throw new RuntimeException('Failed to connect to Hugging Face.');
+            throw new RuntimeException('Failed to connect to Ollama. Status: ' . $response->status());
         }
 
         $result = $response->json();
-        $rawText = $result['generated_text'] ?? null;  // Hugging Face biasanya mengembalikan teks dengan key 'generated_text'
+
+        $rawText = $result['response'] ?? null;
 
         if (! $rawText) {
-            throw new RuntimeException('Empty AI response.');
+            throw new RuntimeException('Empty AI response from Ollama.');
         }
 
         $jsonText = $this->extractJson($rawText);
         $decoded = json_decode($jsonText, true);
 
         if (! is_array($decoded)) {
+            Log::error('AI response is not valid JSON', [
+                'raw_response' => $rawText,
+                'json_text' => $jsonText,
+            ]);
+
             throw new RuntimeException('AI response is not valid JSON.');
         }
 

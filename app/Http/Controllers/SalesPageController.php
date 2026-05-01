@@ -59,7 +59,7 @@ class SalesPageController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'ai_error' => 'Failed to generate sales page. Please make sure Hugging Face is running.',
+                    'ai_error' => 'Failed to generate sales page. Please make sure Ollama is running.',
                 ]);
         }
 
@@ -107,7 +107,7 @@ class SalesPageController extends Controller
             $generated = $this->salesPageAiService->generate($payload);
         } catch (\Throwable $e) {
             return back()->withErrors([
-                'ai_error' => 'Failed to regenerate sales page. Please make sure Hugging Face is running.',
+                'ai_error' => 'Failed to regenerate sales page. Please make sure Ollama is running.',
             ]);
         }
 
@@ -179,7 +179,7 @@ class SalesPageController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'ai_error' => 'Failed to re-generate sales page. Please make sure Hugging is running.',
+                    'ai_error' => 'Failed to re-generate sales page. Please make sure Ollama is running.',
                 ]);
         }
 
